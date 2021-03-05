@@ -1,0 +1,71 @@
+Instalamos en Git Hub
+1. Creamos un Nuevo Repo
+- git init
+Añadimos el remoto
+- git remote add origin <dirección del repositorio>
+- git add .
+- git commit -m "first commit"
+- git push -u origin main
+Ya tendriamos todos los ficheros en nuestro repo
+
+Utilizamos la libería gh-pages
+- npm install gh-pages --save-dev
+
+Hacemos un npm run build
+
+En el package.json introducimos un deploy dentro de scrips. El nombre
+de la rama se puede cambiar por si interesa otro nombre
+
+"deploy": "gh-pages -d dist"
+
+En la raiz del proyecto creamos una carpeta que se llame .github,  y 
+dentro de esa carpeta otra llamad workflows que iran todos los flujos
+de trabajo de github actions. Y añadimos un fichero llamel cd.yml
+Cada vez que se haga un push a máster vamos a realizar un despliege
+de nuestra aplicación. Instalar la extensión de visual studio que se
+llama YAML.
+
+name: Continuos Deployment workflow
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  cd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        run: npm run deploy
+
+Ahora en nuestro repo de git hub en Action se tienen que estar realizanod
+las acciones. y nos falla el Deploy porque na hay ninguna credencial de git
+hub donde estamos registrado. No sabes quienes somos.
+Lo más cómodo es hacer con SSH. Através de una clave pública y otra privada.
+
+Para crear esa clave hay que hacerlo desde una terminal Bash que trae ese tipo
+de certificados.
+
+- ssh-keygen -m PEM -t rsa -C "cd-user@my-app.com"
+
+Nos preguntar una sería de opciones, donde queremos guardar la clave y le 
+indicamos
+
+- ./id_rsa
+
+Pero luego hay que borrarlos pq no los necesitamos en local, no le ponemois
+pass y ya tenemos creada nuestra clave pública y privada. El contenido de cada
+una lo tenemos que copiar en github.
+Dentro de setting uno en Deploy keys es para dar permiso de lectura y escritura
+aquí debe de ir nuestra clave pública
+Añadimos una nueva le pones el title de SSH_PUBLIC_KEY y copiamos el valor del
+fichero id_rsa.pub y MUY IMPORTANTE seleccionar el check que ponne ALLOW WRITE.
+Ya podemos borrar dicho fichero
+
